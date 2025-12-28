@@ -1,0 +1,56 @@
+/* src/index.css (append this to existing file) */
+
+/* Smooth rounded horizontal scrollbar (kept from earlier) */
+.hr-scroll-wrapper {
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+.hr-scroll-wrapper::-webkit-scrollbar {
+  height: 10px;
+}
+.hr-scroll-wrapper::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.06);
+  border-radius: 999px;
+  margin: 6px 12px;
+}
+.hr-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #c7d2fe, #60a5fa);
+  border-radius: 999px;
+  min-width: 40px;
+}
+.hr-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  filter: brightness(0.95);
+}
+.hr-scroll-wrapper {
+  scrollbar-color: #60a5fa rgba(0,0,0,0.06);
+  scrollbar-width: thin;
+}
+
+/* Replace single-line table rules with this to show full values */
+
+/* keep your existing hr-scroll-wrapper / scrollbar rules above */
+
+/* Allow full wrapping and show all content in table cells */
+.full-value-table th,
+.full-value-table td {
+  white-space: normal;        /* allow wrapping */
+  overflow: visible;         /* show all content */
+  text-overflow: clip;       /* no ellipsis */
+  word-break: break-word;    /* break long words/URLs */
+  vertical-align: middle;
+  max-width: none;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+/* Keep action column narrow */
+.full-value-table th:last-child,
+.full-value-table td:last-child {
+  white-space: nowrap;
+}
+
+/* table card visual */
+.table-wrapper-card {
+  border-radius: 6px;
+  overflow: hidden;
+}
