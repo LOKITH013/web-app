@@ -1,17 +1,6 @@
 // src/components/HolidayPage.jsx
 import React, { useEffect, useState, useRef, useMemo } from "react";
-import axios from "axios";
-
-const API_BASE = process.env.REACT_APP_API_BASE || "http://127.0.0.1:8000";
-
-const api = axios.create({
-  baseURL: API_BASE,
-  timeout: 15000,
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  },
-});
+import api from "../api/client";
 
 /* ---------------- DEFAULT FORM ---------------- */
 

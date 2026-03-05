@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
-import axios from "axios";
+import api from "../api/client";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts";
-
-const API_BASE = "http://localhost:8000";
 
 function DashboardPage() {
   const [companies, setCompanies] = useState([]);
@@ -16,10 +14,10 @@ function DashboardPage() {
     const loadData = async () => {
       try {
         const [cRes, dRes, eRes, hRes] = await Promise.all([
-          axios.get(`${API_BASE}/company_details`),
-          axios.get(`${API_BASE}/departments`),
-          axios.get(`${API_BASE}/employee`),
-          axios.get(`${API_BASE}/holidays`),
+          api.get("/company_details"),
+          api.get("/departments"),
+          api.get("/employee"),
+          api.get("/holidays"),
         ]);
 
         setCompanies(cRes.data?.data || cRes.data || []);

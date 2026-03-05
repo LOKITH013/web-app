@@ -5,6 +5,8 @@ import HolidayPage from "./components/HolidayPage";
 import EmployeePage from "./components/EmployeePage";
 import DashboardPage from "./components/DashboardPage";
 import LoginPage from "./components/LoginPage";
+import { getUser, getAccessToken, clearAuth } from "./utils/authStorage";
+import { AUTH_LOGOUT_EVENT } from "./api/client";
 
 import {
   FaBuilding,
@@ -15,46 +17,46 @@ import {
   FaBars,
 } from "react-icons/fa";
 
-const CURRENT_USER_KEY = "hr_current_user";
-
 function App() {
   const [activePage, setActivePage] = useState("dashboard");
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [user, setUser] = useState(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true); // 🔑 prevents flicker
+  const [authLoading, setAuthLoading] = useState(true);
 
   const sidebarWidth = isCollapsed ? 110 : 240;
 
   /* ===================== AUTH BOOTSTRAP ===================== */
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(CURRENT_USER_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && parsed.employee_name) {
-          setUser(parsed);
-        }
-      }
-    } catch {
-      // ignore corrupted storage
-    } finally {
-      setAuthLoading(false); // ✅ critical
+    const storedUser = getUser();
+    const hasToken = !!getAccessToken();
+    if (hasToken && storedUser && (storedUser.employee_name || storedUser.name || storedUser.email)) {
+      setUser(storedUser);
     }
+    setAuthLoading(false);
   }, []);
 
   /* ===================== LOGIN ===================== */
   const handleLogin = (userData) => {
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userData));
     setUser(userData);
   };
 
   /* ===================== LOGOUT ===================== */
   const handleLogout = () => {
-    localStorage.removeItem(CURRENT_USER_KEY);
+    clearAuth();
     setUser(null);
     setShowProfileMenu(false);
   };
+
+  /* ===================== SESSION INVALID (e.g. refresh failed) ===================== */
+  useEffect(() => {
+    const onAuthLogout = () => {
+      setUser(null);
+      setShowProfileMenu(false);
+    };
+    window.addEventListener(AUTH_LOGOUT_EVENT, onAuthLogout);
+    return () => window.removeEventListener(AUTH_LOGOUT_EVENT, onAuthLogout);
+  }, []);
 
   /* ===================== BLOCK RENDER ===================== */
   if (authLoading) {

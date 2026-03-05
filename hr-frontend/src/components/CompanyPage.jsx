@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
-import axios from "axios";
-
-const API_BASE = "http://localhost:8000";
+import api from "../api/client";
 
 /* ---------------- DEFAULT FORM ---------------- */
 
@@ -57,7 +55,7 @@ export default function CompanyPage({ userName }) {
   const loadCompanies = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE}/company_details`);
+      const res = await api.get("/company_details");
       setCompanies(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error(err);
@@ -136,13 +134,13 @@ export default function CompanyPage({ userName }) {
 
     try {
       if (editingId) {
-        const res = await axios.put(
-          `${API_BASE}/company_details/${editingId}`,
+        const res = await api.put(
+          `/company_details/${editingId}`,
           { ...form, update_by: userName }
         );
         setCompanies((p) => p.map((c) => (c.id === editingId ? res.data : c)));
       } else {
-        const res = await axios.post(`${API_BASE}/company_details`, {
+        const res = await api.post("/company_details", {
           ...form,
           created_by: userName,
         });

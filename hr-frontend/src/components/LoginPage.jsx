@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-
-const API_BASE = process.env.REACT_APP_API_BASE || "http://127.0.0.1:8000";
-
-const api = axios.create({
-  baseURL: API_BASE,
-  timeout: 15000,
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  },
-});
+import { authApi } from "../api/client";
+import { saveTokens, saveUser } from "../utils/authStorage";
 
 function LoginPage({ onLogin }) {
   const [mode, setMode] = useState("login");
@@ -51,16 +41,35 @@ function LoginPage({ onLogin }) {
     }
 
     try {
-      const res = await api.post("/auth/login", {
+      const res = await authApi.post("/auth/web/login", {
         email,
         password: loginForm.password,
       });
 
-      // backend returns Employee object
-      onLogin(res.data);
+      const data = res.data || {};
+      const accessToken = data.access_token ?? data.accessToken;
+      const refreshToken = data.refresh_token ?? data.refreshToken;
+      const user = data.user ?? data.employee ?? data;
+
+      if (!accessToken) {
+        setError("Login succeeded but no access token received.");
+        return;
+      }
+
+      saveTokens(accessToken, refreshToken);
+      saveUser(user);
+      onLogin(user);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.detail || "Invalid email or password.");
+      if (err.response?.status === 401) {
+        setError("Invalid email or password.");
+      } else if (err.code === "ECONNABORTED" || err.message?.includes("timeout")) {
+        setError("Request timed out. Please try again.");
+      } else if (err.response?.status >= 500) {
+        setError("Server error. Please try again later.");
+      } else {
+        setError(err.response?.data?.detail || err.response?.data?.message || "Invalid email or password.");
+      }
     } finally {
       setLoading(false);
     }
@@ -96,20 +105,38 @@ function LoginPage({ onLogin }) {
     }
 
     try {
-      const res = await api.post("/auth/signup", {
+      const res = await authApi.post("/auth/signup", {
         full_name,
         email,
         password,
       });
 
-      // auto-login after signup
-      onLogin(res.data);
+      const data = res.data || {};
+      const accessToken = data.access_token ?? data.accessToken;
+      const refreshToken = data.refresh_token ?? data.refreshToken;
+      const user = data.user ?? data.employee ?? data;
+
+      if (accessToken) {
+        saveTokens(accessToken, refreshToken);
+        saveUser(user);
+        onLogin(user);
+      } else {
+        // signup may return only user (no tokens); backend might require separate login
+        saveUser(user);
+        onLogin(user);
+      }
     } catch (err) {
       console.error(err);
-      setError(
-        err.response?.data?.detail ||
-          "Signup failed. Please contact administrator."
-      );
+      if (err.response?.status === 400) {
+        setError(err.response?.data?.detail || "Invalid input. Please check your details.");
+      } else if (err.response?.status >= 500) {
+        setError("Server error. Please try again later.");
+      } else {
+        setError(
+          err.response?.data?.detail ||
+            "Signup failed. Please contact administrator."
+        );
+      }
     } finally {
       setLoading(false);
     }
