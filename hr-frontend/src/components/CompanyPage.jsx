@@ -115,7 +115,7 @@ export default function CompanyPage({ userName }) {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Deactivate this company?")) return;
-    await axios.delete(`${API_BASE}/company_details/${id}`);
+    await api.delete(`/company_details/${id}`);
     setCompanies((p) => p.filter((c) => c.id !== id));
   };
 

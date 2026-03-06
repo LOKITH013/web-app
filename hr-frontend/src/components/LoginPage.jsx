@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { authApi } from "../api/client";
 import { saveTokens, saveUser } from "../utils/authStorage";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 function LoginPage({ onLogin }) {
   const [mode, setMode] = useState("login");
@@ -74,7 +75,7 @@ function LoginPage({ onLogin }) {
       } else if (err.response?.status >= 500) {
         setError("Server error. Please try again later.");
       } else {
-        setError(err.response?.data?.detail || err.response?.data?.message || "Invalid Employee ID/email or password.");
+        setError(getErrorMessage(err.response?.data?.detail ?? err.response?.data?.message, "Invalid Employee ID/email or password."));
       }
     } finally {
       setLoading(false);
@@ -134,14 +135,11 @@ function LoginPage({ onLogin }) {
     } catch (err) {
       console.error(err);
       if (err.response?.status === 400) {
-        setError(err.response?.data?.detail || "Invalid input. Please check your details.");
+        setError(getErrorMessage(err.response?.data?.detail, "Invalid input. Please check your details."));
       } else if (err.response?.status >= 500) {
         setError("Server error. Please try again later.");
       } else {
-        setError(
-          err.response?.data?.detail ||
-            "Signup failed. Please contact administrator."
-        );
+        setError(getErrorMessage(err.response?.data?.detail, "Signup failed. Please contact administrator."));
       }
     } finally {
       setLoading(false);
