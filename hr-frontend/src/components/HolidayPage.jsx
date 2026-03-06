@@ -1,6 +1,7 @@
 // src/components/HolidayPage.jsx
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import api from "../api/client";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 /* ---------------- DEFAULT FORM ---------------- */
 
@@ -142,7 +143,7 @@ export default function HolidayPage({ userName }) {
       setEditingId(null);
     } catch (err) {
       console.error(err);
-      setError("Failed to save holiday.");
+      setError(getErrorMessage(err.response?.data?.detail, "Failed to save holiday."));
     }
   };
 

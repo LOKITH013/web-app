@@ -1,6 +1,7 @@
 // src/components/DepartmentPage.jsx
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import api from "../api/client";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 const emptyDepartment = {
   company_id: "",
@@ -150,7 +151,7 @@ export default function DepartmentPage({ userName }) {
       setTimeout(() => setNotice(""), 2500);
     } catch (err) {
       console.error(err);
-      setError("Failed to save department.");
+      setError(getErrorMessage(err.response?.data?.detail, "Failed to save department."));
     }
   };
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import api from "../api/client";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 /* ---------------- DEFAULT FORM ---------------- */
 
@@ -153,7 +154,7 @@ export default function CompanyPage({ userName }) {
       setError("");
     } catch (err) {
       console.error(err);
-      setError("Failed to save company");
+      setError(getErrorMessage(err.response?.data?.detail, "Failed to save company."));
     }
   };
 

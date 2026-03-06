@@ -26,14 +26,14 @@ function LoginPage({ onLogin }) {
 
   const validateGmail = (email) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email);
 
-  /** Build login payload: send empId or email depending on input. */
+  /** Build login payload: send employee_id or email (snake_case for backend). */
   const getLoginPayload = () => {
     const trimmed = loginForm.loginId.trim();
-    const password = loginForm.password;
+    const password = (loginForm.password || "").trim();
     if (trimmed.includes("@")) {
       return { email: trimmed.toLowerCase(), password };
     }
-    return { empId: trimmed, password };
+    return { employee_id: trimmed, password };
   };
 
   /* ===================== LOGIN ===================== */
@@ -44,8 +44,14 @@ function LoginPage({ onLogin }) {
     setLoading(true);
 
     const loginId = loginForm.loginId.trim();
+    const password = (loginForm.password || "").trim();
     if (!loginId) {
       setError("Please enter Employee ID or Email.");
+      setLoading(false);
+      return;
+    }
+    if (!password) {
+      setError("Password is required.");
       setLoading(false);
       return;
     }
@@ -99,12 +105,21 @@ function LoginPage({ onLogin }) {
       return;
     }
 
+    if (!email) {
+      setError("Email is required.");
+      setLoading(false);
+      return;
+    }
     if (!validateGmail(email)) {
       setError("Please enter a valid Gmail address.");
       setLoading(false);
       return;
     }
-
+    if (!password || !password.trim()) {
+      setError("Password is required.");
+      setLoading(false);
+      return;
+    }
     if (password.length > 10) {
       setError("Password must be at most 10 characters.");
       setLoading(false);

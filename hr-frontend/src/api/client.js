@@ -9,7 +9,7 @@ import {
 const API_BASE = process.env.REACT_APP_API_BASE || "http://127.0.0.1:8000";
 
 /** Paths that must not send Bearer token (login, signup, refresh). */
-const NO_AUTH_PATHS = ["/auth/login", "/auth/signup", "/auth/refresh"];
+const NO_AUTH_PATHS = ["/auth/login", "/auth/web/login", "/auth/signup", "/auth/refresh"];
 
 const isNoAuthPath = (url) =>
   NO_AUTH_PATHS.some((path) => url && url.includes(path));

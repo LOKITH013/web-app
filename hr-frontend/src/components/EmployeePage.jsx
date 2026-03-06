@@ -1,6 +1,7 @@
 // src/components/EmployeePage.jsx
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import api from "../api/client";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 const emptyEmployee = {
   employee_id: "",
@@ -185,7 +186,7 @@ export default function EmployeePage({ userName }) {
       setEditingId(null);
     } catch (err) {
       console.error(err);
-      setError("Failed to save employee.");
+      setError(getErrorMessage(err.response?.data?.detail, "Failed to save employee."));
     }
   };
 
