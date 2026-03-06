@@ -6,7 +6,7 @@ function LoginPage({ onLogin }) {
   const [mode, setMode] = useState("login");
 
   const [loginForm, setLoginForm] = useState({
-    email: "",
+    loginId: "",
     password: "",
   });
 
@@ -25,6 +25,16 @@ function LoginPage({ onLogin }) {
 
   const validateGmail = (email) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email);
 
+  /** Build login payload: send empId or email depending on input. */
+  const getLoginPayload = () => {
+    const trimmed = loginForm.loginId.trim();
+    const password = loginForm.password;
+    if (trimmed.includes("@")) {
+      return { email: trimmed.toLowerCase(), password };
+    }
+    return { empId: trimmed, password };
+  };
+
   /* ===================== LOGIN ===================== */
 
   const handleLoginSubmit = async (e) => {
@@ -32,19 +42,15 @@ function LoginPage({ onLogin }) {
     setError("");
     setLoading(true);
 
-    const email = loginForm.email.toLowerCase().trim();
-
-    if (!validateGmail(email)) {
-      setError("Please enter a valid Gmail address.");
+    const loginId = loginForm.loginId.trim();
+    if (!loginId) {
+      setError("Please enter Employee ID or Email.");
       setLoading(false);
       return;
     }
 
     try {
-      const res = await authApi.post("/auth/web/login", {
-        email,
-        password: loginForm.password,
-      });
+      const res = await authApi.post("/auth/web/login", getLoginPayload());
 
       const data = res.data || {};
       const accessToken = data.access_token ?? data.accessToken;
@@ -62,13 +68,13 @@ function LoginPage({ onLogin }) {
     } catch (err) {
       console.error(err);
       if (err.response?.status === 401) {
-        setError("Invalid email or password.");
+        setError("Invalid Employee ID/email or password.");
       } else if (err.code === "ECONNABORTED" || err.message?.includes("timeout")) {
         setError("Request timed out. Please try again.");
       } else if (err.response?.status >= 500) {
         setError("Server error. Please try again later.");
       } else {
-        setError(err.response?.data?.detail || err.response?.data?.message || "Invalid email or password.");
+        setError(err.response?.data?.detail || err.response?.data?.message || "Invalid Employee ID/email or password.");
       }
     } finally {
       setLoading(false);
@@ -158,15 +164,16 @@ function LoginPage({ onLogin }) {
           {mode === "login" ? (
             <form onSubmit={handleLoginSubmit}>
               <div className="mb-3">
-                <label className="form-label">Gmail address</label>
+                <label className="form-label">Employee ID or Email</label>
                 <input
-                  type="email"
+                  type="text"
                   className="form-control"
-                  value={loginForm.email}
+                  placeholder="Enter employee ID or email"
+                  value={loginForm.loginId}
                   onChange={(e) =>
                     setLoginForm({
                       ...loginForm,
-                      email: e.target.value,
+                      loginId: e.target.value,
                     })
                   }
                 />
